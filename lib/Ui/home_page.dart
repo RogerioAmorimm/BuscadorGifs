@@ -1,36 +1,22 @@
-import 'dart:convert';
 import 'package:buscador_gif/Ui/components.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+ 
 
 class HomePage extends StatefulWidget {
+  
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  String _search;
-  int _offSet = 0;
-
-  Future<Map> _getGifs() async {
-    http.Response response;
-    if (_search == null) {
-      response = await http.get(
-          "https://api.giphy.com/v1/gifs/trending?api_key=HSORc1g2DUen462ILMqW3FvNZRKVM3ls&limit=20&rating=G");
-    } else {
-      response = await http.get(
-          "https://api.giphy.com/v1/gifs/search?api_key=HSORc1g2DUen462ILMqW3FvNZRKVM3ls&q=$_search&limit=20&offset=$_offSet&rating=G&lang=en");
-    }
-
-    return json.decode(response.body);
-  }
+ 
+  
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _getGifs().then((map) {
+    getGifs().then((map) {
       print(map);
     });
   }
@@ -55,10 +41,16 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder()),
               style: TextStyle(color: Colors.white, fontSize: 18.0),
               textAlign: TextAlign.center,
+              onChanged: (text){
+                setState(() {
+                search = text;
+                offSet = 0;
+                });
+              },
             ),
           ),
           Expanded(
-            child: GradeDeGifs(futureFunction: _getGifs())
+            child: gradeDeGifs(futureFunction: getGifs())
           )
         ],
       ),
