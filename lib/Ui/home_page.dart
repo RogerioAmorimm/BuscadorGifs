@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:share/share.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,11 +13,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _search;
+  String _search = "";
   int _offSet = 0;
 
   Future<Map> _getGifs() async {
     http.Response response;
+
     if (_search == null || _search == "") {
       response = await http.get(
           "https://api.giphy.com/v1/gifs/trending?api_key=HSORc1g2DUen462ILMqW3FvNZRKVM3ls&limit=20&rating=G");
@@ -55,7 +58,7 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder()),
               style: TextStyle(color: Colors.white, fontSize: 18.0),
               textAlign: TextAlign.center,
-              onChanged: (text) {
+              onSubmitted: (text) {
                 setState(() {
                   _search = text;
                   _offSet = 0;
@@ -64,35 +67,36 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Expanded(
-              child: FutureBuilder(
-                  future: _getGifs(),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                      case ConnectionState.none:
-                        return Container(
-                          width: 200.0,
-                          height: 200.0,
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                            strokeWidth: 5.0,
-                          ),
-                        );
-                      default:
-                        if (snapshot.hasError)
-                          return Container();
-                        else
-                          return _creatGifTable(context, snapshot);
-                    }
-                  }))
+            child: FutureBuilder(
+                future: _getGifs(),
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                    case ConnectionState.none:
+                      return Container(
+                        width: 200.0,
+                        height: 200.0,
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 5.0,
+                        ),
+                      );
+                    default:
+                      if (snapshot.hasError)
+                        return Container();
+                      else
+                        return _creatGifTable(context, snapshot);
+                  }
+                }),
+          ),
         ],
       ),
     );
   }
 
-int _getCount(List data) {
+  int _getCount(List data) {
     if (_search == null) {
       return data.length;
     } else {
@@ -109,16 +113,22 @@ int _getCount(List data) {
         itemBuilder: (context, index) {
           if (_search == null || index < snapshot.data["data"].length) {
             return GestureDetector(
-              child: Image.network(
-                  snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-                  height: 300.0,
-                  fit: BoxFit.cover),
+              child: FadeInImage.memoryNetwork(
+                placeholder: kTransparentImage,
+                image: snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+                height: 300.0,
+                fit: BoxFit.cover,
+              ),
               onTap: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
                             GifPage(snapshot.data["data"][index])));
+              },
+              onLongPress: () {
+                Share.share(snapshot.data["data"][index]["images"]
+                    ["fixed_height"]["url"]);
               },
             );
           } else {
@@ -140,5 +150,4 @@ int _getCount(List data) {
           }
         });
   }
-
 }
