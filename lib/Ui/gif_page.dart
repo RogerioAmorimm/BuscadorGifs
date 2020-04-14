@@ -17,13 +17,14 @@ class GifPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.share),
             onPressed: (){
-              Share.share(_gifData["images"]["fixed_heidht"]["url"]);
+              Share.share(_gifData["images"]["fixed_height"]["url"]);
             })
         ],
       ),
       backgroundColor: Colors.black,
       body: Center(
-        child: Image.network(_gifData["images"]["fixed_heidht"]["url"])),
+        child: Image.network(_gifData["images"]["fixed_height"]["url"]),
+        ),
     );
   }
 }

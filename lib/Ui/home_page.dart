@@ -143,7 +143,9 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 onTap: () {
+                  setState(() {
                   _offSet += 19;
+                  });
                 },
               ),
             );
